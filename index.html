@@ -184,7 +184,10 @@ textarea{min-height:7rem;resize:vertical}
 .foot a{color:#EDF1F5}
 
 @media(max-width:560px){
-  .nav a:not(.nav-cta){display:none}
+  .nav a:not(.nav-cta):not(.nav-tools){display:none}
+  .top{flex-wrap:wrap;row-gap:.75rem}
+  .nav{gap:1.1rem;font-size:.92rem}
+  .nav a{white-space:nowrap}
   .top{padding-bottom:2rem}
   .section{padding:2.75rem 0}
   .offer{padding:2.75rem 0}
@@ -205,7 +208,7 @@ textarea{min-height:7rem;resize:vertical}
       <a class="brand" href="#top">Elevated Communication</a>
       <nav class="nav" aria-label="Main">
         <a href="#practise">What you practise</a>
-        <a href="#tools">Practice tools</a>
+        <a class="nav-tools" href="/tools/" target="_blank" rel="noopener">Practice tools</a>
         <a href="#session">The session</a>
         <a href="#about">About Peter</a>
         <a class="nav-cta" href="#request">Request a session</a>
@@ -305,27 +308,6 @@ textarea{min-height:7rem;resize:vertical}
     </div>
 
     <p class="note">Everyone plays every role, so every officer speaks in every round and nobody performs in front of the whole room.</p>
-  </div>
-</section>
-
-<section class="section" id="tools">
-  <div class="wrap">
-    <h2>Practice tools</h2>
-    <p class="intro">Officers open these on their phones during a session, using the password they're given. They can keep using them afterward.</p>
-    <div class="doors">
-      <a class="door" href="/handleit/" target="_blank" rel="noopener">
-        <span class="kind">Hard questions</span>
-        <strong>Handle It</strong>
-        <span class="desc">Sixteen scenarios from students, parents, school staff and community members.</span>
-        <span class="go">Open Handle It</span>
-      </a>
-      <a class="door" href="/holdtheroom/" target="_blank" rel="noopener">
-        <span class="kind">Planned talks</span>
-        <strong>Hold the Room</strong>
-        <span class="desc">Five tools and six drills for keeping a classroom or a full gym with you.</span>
-        <span class="go">Open Hold the Room</span>
-      </a>
-    </div>
   </div>
 </section>
 
