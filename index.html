@@ -12,38 +12,38 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Be ready for the hard question | Elevated Communication">
 <meta property="og:description" content="Practice-based communication workshops for police and school resource officers in the Lower Mainland.">
-<meta name="theme-color" content="#12302A">
+<meta name="theme-color" content="#1D2228">
 <meta name="color-scheme" content="light dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --spruce:#12302A;
-  --spruce-2:#1B463D;
-  --paper:#F2F5F3;
-  --mist:#E3EBE7;
-  --line:#B4C4BD;
-  --ink:#0E1A17;
-  --muted:#34454A;
-  --rain:#1F6166;
+  --spruce:#1D2228;
+  --spruce-2:#2A3139;
+  --paper:#F3F5F7;
+  --mist:#E4E9EE;
+  --line:#C7CED5;
+  --ink:#151A20;
+  --muted:#46505A;
+  --rain:#2B6A9E;
   --card:#FFFFFF;
-  --marker:#F5C518;
+  --marker:#7FB8E6;
   --sans:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
   --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
   color-scheme:light dark;
 }
 @media(prefers-color-scheme:dark){
   :root{
-    --spruce:#0B211C;
-    --spruce-2:#17382F;
-    --paper:#0F1A17;
-    --mist:#16261F;
-    --line:#3A5046;
-    --ink:#F0F5F2;
-    --muted:#BCCDC6;
-    --rain:#8FD0D5;
-    --card:#1B2C26;
+    --spruce:#15191D;
+    --spruce-2:#262D35;
+    --paper:#121519;
+    --mist:#1A1F24;
+    --line:#353E47;
+    --ink:#EEF1F4;
+    --muted:#C0C8D0;
+    --rain:#8EC3EC;
+    --card:#1E242A;
   }
 }
 *{box-sizing:border-box}
@@ -65,21 +65,21 @@ p{margin:0 0 1rem}
 /* Buttons */
 .btn{display:inline-block;font:600 1rem/1 var(--sans);padding:.95rem 1.3rem;border-radius:6px;border:2px solid transparent;cursor:pointer;text-decoration:none;transition:background-color .15s,color .15s,border-color .15s}
 .btn--primary{background:var(--marker);color:var(--spruce)}
-.btn--primary:hover{background:#FFD84A}
-.btn--ghost{background:transparent;color:#EAF1EE;border-color:#5E7F76}
-.btn--ghost:hover{border-color:#EAF1EE}
+.btn--primary:hover{background:#A3CDF0}
+.btn--ghost{background:transparent;color:#EDF1F5;border-color:#5F6A75}
+.btn--ghost:hover{border-color:#EDF1F5}
 .btn--quiet{background:transparent;color:var(--rain);border-color:var(--rain)}
 .btn--quiet:hover{background:var(--card)}
 
 /* Hero */
-.hero{background:var(--spruce);color:#EAF1EE;padding:1.25rem 0 3rem}
+.hero{background:var(--spruce);color:#EDF1F5;padding:1.25rem 0 3rem}
 .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-bottom:3.5rem}
 .brand{font:700 1.05rem/1 var(--sans);color:#fff;text-decoration:none}
 .nav{display:flex;gap:1.4rem;font:500 .95rem/1 var(--sans)}
-.nav a{color:#C9D9D4;text-decoration:none}
+.nav a{color:#C6CDD4;text-decoration:none}
 .nav a:hover{color:#fff}
 .hero h1{font-size:clamp(2.6rem,7.2vw,5rem);line-height:1;letter-spacing:-.025em;font-stretch:90%;max-width:15ch;margin-bottom:1.25rem}
-.lede{font-size:1.25rem;max-width:36rem;color:#C9D9D4;margin-bottom:1.75rem}
+.lede{font-size:1.25rem;max-width:36rem;color:#C6CDD4;margin-bottom:1.75rem}
 .actions{display:flex;flex-wrap:wrap;gap:.75rem}
 
 .drill{margin-top:3.25rem;background:var(--spruce-2);border-left:.55rem solid var(--marker);border-radius:0 10px 10px 0;padding:1.5rem 1.5rem 1.4rem}
@@ -89,7 +89,7 @@ p{margin:0 0 1rem}
 .drill-who{transition:opacity .18s}
 .drill-bar{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1rem}
 .timer{font:600 1.4rem/1 var(--sans);font-variant-numeric:tabular-nums;color:#fff;min-width:7ch}
-.drill-hint{margin:1.1rem 0 0;font-size:.98rem;color:#B5C9C2}
+.drill-hint{margin:1.1rem 0 0;font-size:.98rem;color:#AEB8C2}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* Accordions */
@@ -110,7 +110,7 @@ p{margin:0 0 1rem}
 .card{background:var(--card);border:1.5px solid var(--line);border-radius:0 10px 10px 10px;padding:1.6rem 1.5rem;max-width:44rem}
 .card[data-role="officer"]{border-top:.4rem solid var(--marker)}
 .card[data-role="challenger"]{border-top:.4rem solid var(--rain)}
-.card[data-role="observer"]{border-top:.4rem solid #7C8F8A}
+.card[data-role="observer"]{border-top:.4rem solid #7D8893}
 .card h3{margin-bottom:.9rem}
 .lab{font:600 .92rem/1.2 var(--sans);color:var(--muted);margin:1.1rem 0 .3rem}
 .card .lab:first-of-type{margin-top:0}
@@ -153,9 +153,9 @@ p{margin:0 0 1rem}
 .photo img{width:100%;height:auto;border-radius:8px;display:block}
 
 /* Offer band */
-.offer{background:var(--spruce);color:#EAF1EE;padding:3.5rem 0}
+.offer{background:var(--spruce);color:#EDF1F5;padding:3.5rem 0}
 .offer h2{color:#fff;max-width:20ch}
-.offer p{max-width:40rem;color:#C9D9D4}
+.offer p{max-width:40rem;color:#C6CDD4}
 .offer strong{color:#fff}
 
 /* About */
@@ -179,9 +179,9 @@ textarea{min-height:7rem;resize:vertical}
 .contact-line{font:600 1.15rem/1.5 var(--sans);margin:0 0 .4rem}
 
 /* Footer */
-.foot{background:var(--spruce);color:#B5C9C2;padding:2rem 0;font-size:.95rem}
+.foot{background:var(--spruce);color:#AEB8C2;padding:2rem 0;font-size:.95rem}
 .foot p{margin:0 0 .4rem;max-width:44rem}
-.foot a{color:#EAF1EE}
+.foot a{color:#EDF1F5}
 
 @media(max-width:560px){
   .nav a:not(.nav-cta){display:none}
