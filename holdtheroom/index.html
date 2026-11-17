@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Hold the Room</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one phone-width column, sibling to Handle It. Quiet slate page; the loud
+   things are the yellow evidence-marker numbers and the five tool colours. */
+:root{
+  --bg:#E9ECEF; --surface:#FFFFFF; --ink:#14202B; --muted:#566473; --line:#C9D1D9;
+  --marker:#F2B705; --marker-ink:#16130A;
+  --story:#1D3B63; --hands:#A8341C; --tps:#2A6A4C; --demo:#6B4E12; --job:#4A3F78; --on-tool:#FFFFFF;
+  --no:#A8341C; --yes:#2A6A4C;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#1A232C; --ink:#E9EDF0; --muted:#9AA7B4; --line:#33404C;
+    --marker:#F2B705; --marker-ink:#16130A;
+    --story:#2C568F; --hands:#C2452B; --tps:#33805C; --demo:#8A6A1E; --job:#6557A8; --on-tool:#FFFFFF;
+    --no:#EE7A5F; --yes:#5FC295; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#1A232C; --ink:#E9EDF0; --muted:#9AA7B4; --line:#33404C;
+  --marker:#F2B705; --marker-ink:#16130A;
+  --story:#2C568F; --hands:#C2452B; --tps:#33805C; --demo:#8A6A1E; --job:#6557A8; --on-tool:#FFFFFF;
+  --no:#EE7A5F; --yes:#5FC295; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+#app{max-width:560px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));display:flex;flex-direction:column;gap:20px}
+h1,h2,h3,p{margin:0}
+h1,h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.01em;line-height:1;text-wrap:balance}
+h1{font-size:54px;font-weight:700}
+h2{font-size:30px;font-weight:700}
+.eyebrow{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--muted);max-width:44ch}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--marker);outline-offset:2px}
+.group{display:flex;flex-direction:column;gap:10px}
+
+.marker{flex:none;display:grid;place-items:center;min-width:46px;height:46px;padding:0 6px;background:var(--marker);color:var(--marker-ink);font-family:var(--display);font-weight:700;font-size:30px;line-height:1;border-radius:3px 3px 0 0;border-bottom:4px solid var(--marker-ink);font-variant-numeric:tabular-nums}
+.marker.big{min-width:64px;height:64px;font-size:44px}
+
+.reset{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--marker);border-radius:6px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.reset b{font-family:var(--display);font-size:24px;line-height:1.1;text-transform:uppercase}
+.linkbtn{background:none;border:0;padding:0;font-weight:600;text-decoration:underline;text-align:left;align-self:flex-start}
+
+.tools{display:flex;flex-direction:column;gap:10px}
+.tool{display:flex;flex-direction:column;gap:4px;text-align:left;border:0;border-radius:6px;padding:14px 16px;color:var(--on-tool);min-width:0}
+.tool b{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.03em;text-transform:uppercase;line-height:1.05}
+.tool span{font-size:15px;opacity:.92;line-height:1.35}
+.story{background:var(--story)} .hands{background:var(--hands)} .tps{background:var(--tps)} .demo{background:var(--demo)} .job{background:var(--job)}
+
+.steps{list-style:none;margin:0;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column;gap:8px;counter-reset:s}
+.steps li{display:flex;gap:12px;align-items:baseline;counter-increment:s}
+.steps li::before{content:counter(s);font-family:var(--display);font-weight:700;font-size:22px;color:var(--muted);min-width:14px}
+
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row .place{font-weight:600;line-height:1.3}
+.row .meta{font-size:14px;color:var(--muted)}
+.row .len{flex:none;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.primary{border:2px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:6px;padding:13px 16px;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.05em;text-transform:uppercase;width:100%}
+footer{font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+
+.back{align-self:flex-start;background:none;border:0;padding:6px 0;font-weight:600;font-size:15px;color:var(--muted)}
+.head{display:flex;gap:14px;align-items:center}
+.head .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.head .place{font-weight:700;font-size:20px;line-height:1.25}
+.head .meta{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.band{padding:14px 18px;color:var(--on-tool);display:flex;flex-direction:column;gap:4px}
+.band b{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.band span{font-size:16px;font-weight:600;opacity:.95}
+.band.plain{background:var(--ink);color:var(--bg)}
+.body{padding:18px;display:flex;flex-direction:column;gap:18px}
+.sec{display:flex;flex-direction:column;gap:6px}
+.sec h3{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.say{font-size:22px;font-weight:600;line-height:1.3;border-left:5px solid var(--marker);padding:4px 0 4px 14px;text-wrap:pretty}
+.plain{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.plain li{padding-left:14px;border-left:3px solid var(--line)}
+.parts{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0}
+.parts dt{font-weight:700}
+.parts dd{margin:0;color:var(--muted)}
+.swap{display:flex;flex-direction:column;gap:4px;padding:10px 0;border-bottom:1px solid var(--line)}
+.swap:last-child{border-bottom:0}
+.swap .no{color:var(--muted)}
+.swap .no::before{content:"✗ ";color:var(--no);font-weight:700}
+.swap .yes::before{content:"✓ ";color:var(--yes);font-weight:700}
+.check{display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.check:last-child{border-bottom:0}
+.check input{width:24px;height:24px;flex:none;accent-color:var(--tps)}
+details{border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+summary{font-weight:600;cursor:pointer}
+details > *:not(summary){margin-top:8px}
+.timer{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.clock{font-family:var(--display);font-weight:700;font-size:52px;line-height:1;font-variant-numeric:tabular-nums;min-width:112px}
+.clock.done{color:var(--no)}
+.tbtn{border:2px solid var(--ink);background:transparent;border-radius:6px;padding:9px 16px;font-weight:700}
+.nav{display:flex;gap:10px;flex-wrap:wrap}
+.nav button{flex:1;min-width:150px;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:12px;font-weight:600}
+.more{display:flex;flex-direction:column;gap:16px;padding-top:6px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 14px;font-size:15px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.slot{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.slot.s-story{border-left-color:var(--story)} .slot.s-hands{border-left-color:var(--hands)} .slot.s-tps{border-left-color:var(--tps)} .slot.s-demo{border-left-color:var(--demo)} .slot.s-job{border-left-color:var(--job)}
+.slot label{font-family:var(--display);font-weight:700;font-size:24px;text-transform:uppercase;line-height:1.05}
+.slot .hint{font-size:15px;color:var(--muted)}
+textarea{width:100%;min-height:84px;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;resize:vertical}
+.copied{font-size:15px;color:var(--muted);min-height:1.5em}
+</style>
+
+</head>
+<body>
+<main id="app"></main>
+
+<script>
+const TOOLS = {
+  story:{name:"Story", cls:"story", tag:"Stories hold a room better than facts.", short:"Turn a fact into something that happened to one person.",
+    why:`A story makes the room ask “what happens next?”, and that keeps people listening. A meta-analysis of narrative research found that stories shift beliefs, attitudes and intentions (Braddock & Dillard, 2016).`,
+    howTitle:"What a story needs",
+    how:`<p>A story doesn't need to be long, dramatic or personal. It needs four things.</p>
+      <dl class="parts"><dt>A person</dt><dd>Someone the room can picture.</dd><dt>A goal</dt><dd>What they are trying to do.</dd><dt>A challenge</dt><dd>What gets in the way.</dd><dt>An outcome</dt><dd>What happened, or a question left open.</dd></dl>`,
+    extra:`<div class="sec"><h3>Fact, then story</h3>
+      <div class="swap"><span class="no">“Online predators may build trust slowly over time.”</span><span class="yes">“Imagine a 13-year-old girl who started chatting online with someone who said he was 14. For weeks they chatted late into the night about music, games, school and problems with their parents. One night he told her, ‘I trust you and I hope you trust me too. Can you send me a picture you wouldn't send anyone else?’ She stared at the message. What do you think she should do?”</span></div>
+      <div class="swap"><span class="no">“Distracted driving causes many collisions every year.”</span><span class="yes">“A boy in Grade 11 is driving home after basketball practice, already ten minutes late. His phone buzzes on the passenger seat. It's his girlfriend: ‘We need to talk.’ He looks down for two seconds…”</span></div>
+      <div class="swap"><span class="no">“Many students witness bullying without intervening.”</span><span class="yes">“A girl in Grade 6 is eating lunch alone when two students sit at the next table and start mocking the way she talks. Her friend sees it from across the cafeteria, and realizes she has noticed him watching. What should he do?”</span></div>
+    </div>`, drill:1},
+  hands:{name:"Hands-up question", cls:"hands", tag:"Ask something everyone can answer in two seconds.", short:"A closed question the whole room answers at once.",
+    why:`A quick closed question gets the whole room taking part at the same moment, and nobody is put on the spot. “How old do you think I am?” works because everyone can answer it, it is a little funny, and it makes the room tune in to you.`,
+    howTitle:"Five ways to ask",
+    how:`<ul class="plain"><li><b>Yes or no.</b> “Raise your hand if you've ever had a message you wished you could unsend.”</li><li><b>Show of hands.</b> “Who walked to school today?”</li><li><b>Thumbs up or down.</b> True or false questions.</li><li><b>Scale.</b> “One to five, show me with your hands.”</li><li><b>Poll.</b> Bedtime, hours of sleep, favourite subject or sport.</li></ul>`,
+    extra:`<div class="sec"><h3>Close the question</h3>
+      <div class="swap"><span class="no">“Please listen while I explain cyberbullying.”</span><span class="yes">“Raise your hand if you know someone who's been cyberbullied.”</span></div>
+      <div class="swap"><span class="no">“Anyone know the answer?”</span><span class="yes">“How long does it take to read a text while driving: one second, three or five? Show me with your fingers.”</span></div>
+      <div class="swap"><span class="no">“What would you do?”</span><span class="yes">“Which would you do first: tell a parent, tell a friend, or deal with it yourself? Vote with your hands.”</span></div>
+    </div>`, drill:2},
+  tps:{name:"Think-Pair-Share", cls:"tps", tag:"Give them something to do together, not just something to hear.", short:"Every student talks, not only the ones who always answer.",
+    why:`Think-Pair-Share is one of the best-supported classroom techniques in education research (Freeman et al., 2014). Experiences are also felt more strongly when they are shared with another person (Boothby, Clark & Bargh, 2014).`,
+    howTitle:"The three steps",
+    how:`<ul class="plain"><li><b>Think, 30 seconds.</b> Give the room a question to consider alone. “What's one reason a teenager might hesitate to call 911?”</li><li><b>Pair, 1 to 2 minutes.</b> “Turn to the person beside you” and repeat the question.</li><li><b>Share, 1 to 2 minutes.</b> Hear from two or three volunteers.</li></ul>`,
+    extra:`<div class="sec"><h3>Same question, two ways</h3>
+      <div class="swap"><span class="no">“When you were a kid, which adult outside your family had a strong and positive influence on you? How?”</span><span class="yes">The same question, then: “Think for 30 seconds. Tell the person next to you for one minute. Then we'll share with the room.”</span></div>
+      <p>The second version gets far more students talking.</p></div>
+    <div class="sec"><h3>Questions that get students talking</h3>
+      <details><summary>Younger grades</summary><ul class="plain"><li>Who is one adult you could go to if you needed help?</li><li>What are some situations when a kid should call 911?</li><li>What should you do if you get separated from your family in a public place?</li><li>What is one way you could help someone who is being left out?</li><li>What do you think police officers do to help people?</li></ul></details>
+      <details><summary>Middle grades</summary><ul class="plain"><li>If you found a weapon at school, what would you do?</li><li>What's one reason someone your age might hesitate to call 911?</li><li>What could you do if a friend was being bullied but asked you not to tell anyone?</li><li>What are some signs that an online situation might not be safe?</li><li>If a friend sent you a threatening message or photo, what would you do?</li></ul></details>
+      <details><summary>High school</summary><ul class="plain"><li>What's one reason a teenager might hesitate to call police, even when they need help?</li><li>If you were at a party and your friend was about to drive home after drinking, what could you do to help?</li><li>If a friend told you something that made you worried about their safety, what could you do?</li><li>Where's the line between joking around online and harassment?</li><li>What is one thing police officers could do to build more trust with people your age?</li></ul></details>
+    </div>`, drill:3},
+  job:{name:"A job to do", cls:"job", tag:"Give the room a task with a finish line.", short:"Rate it, rank it, put it in order, work it out.",
+    why:`Constraints drive focus. “Please listen” gives the room no objective and no reason to listen. A small task gives them a clear objective, a finish line and something they can do.`,
+    howTitle:"Kinds of job",
+    how:`<ul class="plain"><li><b>Rate it.</b> “One to five, how risky is this?”</li><li><b>Rank it.</b> “Rank these three from least harmful to most harmful.”</li><li><b>Put it in order.</b> “What should happen first, second and third?”</li><li><b>Name some.</b> “With your partner, name three examples.”</li><li><b>Work it out.</b> Give them something simple to figure out together.</li></ul>`,
+    extra:`<div class="sec"><h3>Decide three things first</h3>
+      <dl class="parts"><dt>What are they doing?</dt><dd>Rank, find, match, choose, write, decide.</dd><dt>With whom?</dt><dd>Alone, partner, small group, whole class.</dd><dt>When are they done?</dt><dd>One answer, three reasons, top five, one minute.</dd></dl></div>
+    <div class="sec"><h3>From no job to a clear job</h3>
+      <div class="swap"><span class="no">“Please listen while I explain cyberbullying.”</span><span class="yes">“Raise your hand if you've heard of cyberbullying.”</span><span class="yes">“With your partner, name three examples of cyberbullying.”</span><span class="yes">“Rank these three examples of cyberbullying from least harmful to most harmful. You've got one minute.”</span></div>
+      <div class="swap"><span class="no">“What do you think about vaping?”</span><span class="yes">“Ask your partner three reasons teens start vaping.”</span></div>
+      <div class="swap"><span class="no">“What would you do?”</span><span class="yes">“Rank these three choices from best to worst. Sixty seconds.”</span></div>
+    </div>`, drill:4},
+  demo:{name:"Demonstration", cls:"demo", tag:"Show it. Don't only say it.", short:"An object, a visual or a quick action the room can see.",
+    why:`Changing what the room is looking at resets attention. An object, a visual or a quick action gives students something to see and feel, where a sentence gives them something to hear.`,
+    howTitle:"Three ways to show it",
+    how:`<ul class="plain"><li><b>Bring an object.</b> Hold it up, talk about it, pass it around.</li><li><b>Change the medium.</b> Step away from the slides and draw it on the whiteboard.</li><li><b>Get the room to do it.</b> Have them stand, look down, count or move.</li></ul>`,
+    extra:`<div class="sec"><h3>Example: texting and driving</h3>
+      <ul class="plain"><li>Put a phone on the desk. “How long do you think the average person looks away to read a text? One second? Three? Five?” Take a few guesses.</li><li>“Okay. Everybody look down at your desk for five seconds.” Count aloud: one, two, three, four, five.</li><li>“Now imagine you're travelling 80 km/h.”</li></ul></div>`, drill:5}
+};
+const ORDER = ["story","hands","tps","job","demo"];
+
+const RESETS = [
+  ["Audience activity: quick and closed",["Ask a yes or no question","Ask for a show of hands","Thumbs up or down for true or false","Scale questions: “One to five, show me with your hands”","Poll the audience: bedtime, hours of sleep, favourite subject or sport"]],
+  ["Audience activity: interactive and open",["Get people talking","Think-Pair-Share","Writing tasks","Give them jobs or tasks to do"]],
+  ["Visual changes",["Show or discuss an object or visual","Change media, for example slides to whiteboard","Demonstrate something"]],
+  ["Content changes",["Change topics","Tell a story","Use humour, with care","Break for questions"]],
+  ["Environment changes",["Move around the room or change position","Change the audience's position, sitting to standing","Turn the lights off and on, or change the lighting"]],
+  ["Speaker changes",["Switch speakers, if there are two of you"]]
+];
+
+const DRILLS = [
+ {n:1, name:"Fact to story", secs:60, tool:"story", drawLabel:"Your fact",
+  blurb:"Retell a dry fact as something that happened to one person.",
+  speaker:["Take 30 seconds to plan.","Tell it as a story in 60 seconds.","End on what happened, or on a question for the room."],
+  audience:"Listen as the grade the speaker names. Notice the moment you wanted to know what happens next.",
+  checks:["There was a person I could picture","The person wanted something","Something got in the way","It ended on an outcome or an open question"],
+  pool:[[`Online predators may build trust slowly over time.`,`“Imagine a 13-year-old girl who started chatting online with someone who said he was 14. For weeks they chatted late into the night about music, games and school. One night he told her, ‘I trust you and I hope you trust me too. Can you send me a picture you wouldn't send anyone else?’ She stared at the message. What should she do?”`],
+   [`Distracted driving causes many collisions every year.`,`“A boy in Grade 11 is driving home after basketball practice, already ten minutes late. His phone buzzes on the passenger seat. It's his girlfriend: ‘We need to talk.’ He looks down for two seconds…”`],
+   [`Many students witness bullying without intervening.`,`“A girl in Grade 6 is eating lunch alone when two students sit at the next table and start mocking the way she talks. Her friend sees it from across the cafeteria, and realizes she has noticed him watching. What should he do?”`],
+   [`Mental health issues can be hidden.`,`“For three weeks, a girl in Grade 8 has told everyone she's just tired. She's stopped going to band practice and barely answers her friends' messages. One afternoon, her best friend gets a text from her that says, ‘I can't do this anymore.’ What should the friend do?”`],
+   [`A photo shared online is hard to take back.`,`“A Grade 9 student sends a joke photo of himself to one friend. By lunch it's in three group chats. By the end of the day, a student he has never met walks past him and laughs. He wants it gone. Who can he ask?”`],
+   [`Vaping is addictive.`,`“A girl in Grade 10 tries a friend's vape at a party so she doesn't look awkward. A month later she is leaving class twice a day to use her own. Her basketball coach notices she's out of breath in the warm-up and asks what's going on. What does she say?”`],
+   [`People online are not always who they say they are.`,`“A Grade 7 boy has played online with the same teammate for months. The teammate says he's 13 and lives one town over. One day he asks to meet at the mall, and says not to tell anyone. What should the boy do?”`],
+   [`Calling 911 for a friend can save a life.`,`“It's a Saturday night party. A Grade 11 student finds her friend on the bathroom floor and can't wake her. Everyone says not to call, because they'll all get in trouble. She has her phone in her hand. What does she do?”`],
+   [`Helmets prevent head injuries.`,`“A boy in Grade 5 is late for school, and his helmet is in the garage behind the car. It's only six blocks. He gets on his bike without it. At the fourth block, a car door opens.”`]]},
+ {n:2, name:"Close the question", secs:60, tool:"hands", drawLabel:"The open question",
+  blurb:"Turn an open question into one a full gym can answer with their hands.",
+  speaker:["Take 30 seconds to rewrite the question.","Ask your version to your partners as if they were the whole gym.","Use hands, thumbs or a one-to-five scale."],
+  audience:"Answer with your hands only. If you can't answer in two seconds, don't.",
+  checks:["Everyone could answer it","It took about two seconds","Nobody was singled out","It led into the topic"],
+  pool:[[`What do you think about vaping?`,`“Thumbs up if you think vaping is less harmful than smoking. Thumbs down if you think it's the same or worse.”`],
+   [`What would you do?`,`“Which would you do first: tell a parent, tell a friend, or deal with it yourself? Hands up for each one.”`],
+   [`Anyone know the answer?`,`“One second, three or five? Show me with your fingers.”`],
+   [`How do you feel about social media?`,`“One to five, show me with your fingers: how many hours were you on your phone yesterday?”`],
+   [`What do you know about the police?`,`“Raise your hand if you've ever talked to a police officer before today.”`],
+   [`Why is bullying bad?`,`“Raise your hand if you've ever seen someone being left out on purpose.”`],
+   [`Does anyone have questions about online safety?`,`“Raise your hand if you know someone who's been cyberbullied.”`],
+   [`What do you all do after school?`,`“Hands up if you play a sport. Hands up if you game. Hands up if you do both.”`]]},
+ {n:3, name:"Pair them up", secs:120, tool:"tps", drawLabel:"Your question",
+  blurb:"Run a full Think-Pair-Share on your partners.",
+  speaker:["Ask the question and give 30 seconds of silent thinking time.","Tell them who to turn to and for how long.","Bring it back and hear one or two answers."],
+  audience:"Do exactly what you are told, and nothing you are not told.",
+  checks:["There was quiet time to think first","The speaker said who to talk to","The speaker gave a time limit","Answers were heard without being judged"],
+  pool:[[`What's one reason a teenager might hesitate to call police, even when they need help?`],[`Where's the line between joking around online and harassment?`],[`What could you do if a friend was being bullied but asked you not to tell anyone?`],[`What are some signs that an online situation might not be safe?`],[`Who is one adult you could go to if you needed help?`],[`What is one thing police officers could do to build more trust with people your age?`]],
+  eg:q => `“Think about this on your own for 30 seconds: ${q}” Then: “Turn to the person beside you. You have one minute.” Then: “Let's hear a few.”`},
+ {n:4, name:"Give them a job", secs:90, tool:"job", drawLabel:"Your topic",
+  blurb:"Design a small task with a finish line, then run it.",
+  speaker:["Take 30 seconds to write one task: rate, rank, order or work something out.","Say who they do it with and when they are done.","Run it on your partners and hear the result."],
+  audience:"Do the task. If you don't know when you are finished, say so.",
+  checks:["The task had a clear verb: rate, rank, order, name or work out","There was a finish line: a number or a time","It was doable in about a minute","Everyone had something to do"],
+  pool:[[`Vaping`,`“Ask your partner three reasons teens start vaping. One minute.”`],
+   [`Online safety`,`“Rank these three examples of cyberbullying from least harmful to most harmful. You've got one minute. A: Someone makes a fake Instagram account pretending to be a classmate and posts embarrassing things as them. B: An embarrassing photo of a student is shared in a group chat, and people keep adding insults and memes. C: A student is left out of the class group chat while classmates use another chat to make fun of them.”`],
+   [`Bullying`,`“With your partner, name three things a bystander could do without confronting anyone. One minute.”`],
+   [`When to call 911`,`“I'll read four situations. With your partner, decide which ones are a 911 call. Thirty seconds each.”`],
+   [`Texting and driving`,`“Put these in order from most distracting to least: a text, a passenger, changing the music. Thirty seconds with your partner.”`],
+   [`Parties and drinking`,`“Your friend is about to drive home after drinking. With your partner, come up with two things you could say. One minute.”`],
+   [`Trust between police and teens`,`“On your own, rate it from one to five: how comfortable would you be asking a police officer for help? Then tell your partner one thing that would raise your number.”`]]},
+ {n:5, name:"Show it", secs:60, tool:"demo", drawLabel:"Your point",
+  blurb:"Make a point using an object, a visual or the audience.",
+  speaker:["Take 30 seconds to choose what you will show.","Use something on you or in the room, or get your partners to do something.","Make the point in 60 seconds."],
+  audience:"Do what you are asked. Notice whether you saw or felt the point, or only heard it.",
+  checks:["There was something to look at or do","The point was clear without extra explaining","It would work in a full gym"],
+  pool:[[`Five seconds looking at a phone is a long time in a moving car.`,`“Everybody look down at your desk for five seconds.” Count aloud. “Now imagine you're travelling 80 km/h.”`],
+   [`A message can't be unsent.`,`Squeeze toothpaste onto a paper plate, then ask a volunteer to put it back in the tube.`],
+   [`It is hard to tell who is really behind a profile.`,`Show a profile with a photo, an age and a school. “Thumbs up or down: is this person who they say they are?” Then ask how they could tell.`],
+   [`A rumour changes as it spreads.`,`Whisper a sentence to the first student in a row and have it passed along. Ask the last student to say it out loud.`],
+   [`A moving car takes time to stop.`,`Have a volunteer walk, then jog, across the front and stop on your clap. Point out how far they travelled after the clap.`],
+   [`Everyone in this room knows an adult they could go to.`,`“Everyone stand. Sit down once you have thought of one adult you could go to.” Wait until the whole room is sitting.`]]},
+ {n:6, name:"The first three minutes", secs:180, tool:"", drawLabel:"Your talk",
+  blurb:"Chain a hands-up question, a story and a pair prompt into one opening.",
+  speaker:["Take one minute to plan.","Open with a hands-up question.","Tell a short story.","Finish with a pair prompt your partners can do."],
+  audience:"Take part as the class. Notice each time your attention was reset.",
+  checks:["Hands-up question","Story","Think-Pair-Share","A job to do","Demonstration or visual","A line that built trust with the room"],
+  pool:[[`A Grade 10 class, 15 to 20 minutes, on cyberbullying and online safety.`,`Story: “Imagine you send one photo to someone you trust. Two weeks later, you find out it's being shared around your school.” Hands: “Which would you do first: tell a parent, a friend, the school or police, or deal with it yourself?” Trust: “There are probably good reasons behind every one of those answers. I want to hear how you see it first.”`],
+   [`A Grade 6 class, 15 minutes, on when to call 911.`,`Hands: “Raise your hand if you know your home address by heart.” Story: a boy home alone hears his grandmother fall in the kitchen, and she isn't answering. Pairs: “With your partner, list three things the 911 operator will ask you.”`],
+   [`A Grade 12 assembly, 20 minutes, on texting and driving.`,`Hands: “One second, three or five to read a text? Show me with your fingers.” Demonstration: “Everybody look down for five seconds. Now imagine you're travelling 80 km/h.” Pairs: “You're the passenger. What's one line you would really say?”`],
+   [`A Grade 8 class, 15 minutes, on vaping.`,`Hands: “Thumbs up if you think vaping is less harmful than smoking.” Story: a Grade 10 girl tries a friend's vape at a party, and a month later her coach asks why she's out of breath. Pairs: “Ask your partner three reasons teens start.”`],
+   [`A Grade 4 class, 10 minutes, on what police officers do.`,`Hands: “Raise your hand if you've ever talked to a police officer.” Demonstration: pass around your hat or another piece of your kit. Pairs: “Tell your partner one way police officers help people.”`]]}
+];
+
+const TOPICS = {
+  online:{name:"Online safety",
+    story:`“Imagine you send one photo to someone you trust. Two weeks later, you find out it's being shared around your school. Now someone you've never met is threatening to send it to your parents unless you send more.”`,
+    hands:`“Which would you be most likely to do first? Tell a parent, tell a friend, tell the school, contact police, or try to deal with it yourself?” Vote with hands, then ask why.`,
+    tps:`“With your partner, name three examples of cyberbullying. You've got one minute.”`,
+    demo:`Put a profile on the screen with a photo, an age and a school. “Thumbs up or down: is this person who they say they are?” Then ask how they could tell.`,
+    job:`“Rank these three examples of cyberbullying from least harmful to most harmful. You've got one minute. A: Someone makes a fake Instagram account pretending to be a classmate and posts embarrassing things as them. B: An embarrassing photo of a student is shared in a group chat, and people keep adding insults and memes. C: A student is left out of the class group chat while classmates use another chat to make fun of them.”`,
+    trust:`“There are probably good reasons behind every one of those answers. I want to hear how you see it before I tell you how we would approach it.”`},
+  driving:{name:"Texting and driving",
+    story:`“A boy in Grade 11 is driving home after basketball practice, already ten minutes late. His phone buzzes on the passenger seat. It's his girlfriend: ‘We need to talk.’ He looks down for two seconds…”`,
+    hands:`“How long do you think the average person looks away to read a text: one second, three or five? Show me with your fingers.”`,
+    tps:`“You're a passenger. Your friend driving starts replying to a text. What could you say that wouldn't make you sound like their parent?” Thirty seconds in pairs for one line they would really use.`,
+    demo:`“Everybody look down at your desk for five seconds.” Count aloud. “Now imagine you're travelling 80 km/h.”`,
+    job:`“Put these in order from most distracting to least: a text, a passenger, changing the music. Thirty seconds with your partner.”`,
+    trust:`“Those are probably more useful than me standing here telling you what to say. You know how your friends actually talk.”`},
+  bullying:{name:"Bullying",
+    story:`“A girl in Grade 6 is eating lunch alone when two students sit at the next table and start mocking the way she talks. Her friend sees it from across the cafeteria, and realizes she has noticed him watching. What should he do?”`,
+    hands:`“Thumbs up or down: have you ever seen someone being left out and not known what to do?”`,
+    tps:`“What could you do if a friend was being bullied but asked you not to tell anyone?” One minute with a partner.`,
+    demo:`Crumple a sheet of paper, then try to smooth it flat. “You can say sorry. The marks stay.”`,
+    job:`“With your partner, name three things a bystander could do that don't involve confronting anyone. One minute.”`,
+    trust:`“I'm not here to tell you what you should have done. I want to hear what makes it hard.”`},
+  own:{name:"My own topic",
+    story:`Pick one person, give them a goal, put something in the way, and stop before the outcome.`,
+    hands:`Ask something everyone can answer in two seconds with a hand, a thumb or a one-to-five scale.`,
+    tps:`Give a job with a finish line: rank, name three, choose one. Thirty seconds to think, one minute in pairs.`,
+    demo:`Use an object, the whiteboard, or get the room to stand, look, count or move.`,
+    job:`Give a task with a finish line: rate it, rank three things, put steps in order, or work something simple out.`,
+    trust:`Say that you want to hear how they see it before you tell them how you see it.`}
+};
+const SLOTS = [["story","Story or hook","One person, one moment."],["hands","Hands-up question","The whole room answers at once."],["tps","Think-Pair-Share","Think alone, talk in pairs, share with the room."],["job","A job to do","Rate, rank, order or work something out."],["demo","Demonstration","Something they can see or do."]];
+
+const resetSec = r => `<div class="sec"><h3>${r[0]}</h3><ul class="plain">${r[1].map(x => `<li>${x}</li>`).join("")}</ul></div>`;
+const app = document.getElementById("app");
+let tick = null;
+const pad = n => String(n).padStart(2,"0");
+const go = h => { location.hash = h; };
+const wire = () => app.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go));
+const len = s => s >= 120 ? (s/60) + " min" : s + " sec";
+const store = {
+  get(){ try { return JSON.parse(localStorage.getItem("htr-plan")) || {}; } catch(e){ return {}; } },
+  set(v){ try { localStorage.setItem("htr-plan", JSON.stringify(v)); } catch(e){} }
+};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function home(){
+  app.innerHTML = `
+    <header class="group">
+      <p class="eyebrow">Planned speaking practice</p>
+      <h1>Hold the Room</h1>
+      <p class="lede">Keep a classroom or a full gym with you. Practise the five tools, then build the first five minutes of your next talk.</p>
+    </header>
+    <section class="group">
+      <h2>The five tools</h2>
+      <div class="tools">
+        ${ORDER.map(k => `<button class="tool ${TOOLS[k].cls}" data-go="${k}"><b>${TOOLS[k].name}</b><span>${TOOLS[k].short}</span></button>`).join("")}
+      </div>
+    </section>
+    <section class="group">
+      <h2>Drills</h2>
+      <ol class="steps">
+        <li>Get into threes: speaker, audience and observer.</li>
+        <li>Agree on a drill number and draw a prompt.</li>
+        <li>Run it, give one piece of feedback, then rotate.</li>
+      </ol>
+      <ul class="list">
+        ${DRILLS.map(d => `<li><button class="row" data-go="d${d.n}">
+          <span class="marker">${pad(d.n)}</span>
+          <span class="t"><span class="place">${d.name}</span><span class="meta">${d.blurb}</span></span>
+          <span class="len">${len(d.secs)}</span>
+        </button></li>`).join("")}
+      </ul>
+    </section>
+    <section class="group">
+      <h2>Your next talk</h2>
+      <p class="lede">Leave with a plan. Fill in one line for each tool and copy it to your notes.</p>
+      <button class="primary" data-go="build">Build your first five minutes</button>
+    </section>
+    <div class="reset">
+      <b>How to reset their attention</b>
+      <span>Attention drops as a talk goes on. Plan a reset every two to three minutes, or whenever the room needs one.</span>
+      <details><summary>See the list of resets</summary><div class="more">${RESETS.map(resetSec).join("")}</div></details>
+    </div>
+    <footer>
+      <span>Examples are starting points. Use your own words and your own stories.</span>
+      <span>Peter Beresford · ElevatedCommunication.ca</span>
+    </footer>`;
+  wire();
+}
+
+function tool(k){
+  const t = TOOLS[k], d = DRILLS[t.drill-1];
+  app.innerHTML = `
+    <button class="back" data-go="">← Hold the Room</button>
+    <article class="card">
+      <div class="band ${t.cls}"><b>${t.name}</b><span>${t.tag}</span></div>
+      <div class="body">
+        <div class="sec"><h3>Why it works</h3><p>${t.why}</p></div>
+        <div class="sec"><h3>${t.howTitle}</h3>${t.how}</div>
+        ${t.extra}
+      </div>
+    </article>
+    <div class="nav"><button data-go="d${d.n}">Practise: ${d.name}</button><button data-go="">All tools and drills</button></div>`;
+  wire();
+}
+
+function resets(){
+  app.innerHTML = `
+    <button class="back" data-go="">← Hold the Room</button>
+    <header class="group">
+      <p class="eyebrow">Keep on hand</p>
+      <h2>Attention resets for school talks</h2>
+      <p class="lede">A reset is any change in what the room is seeing, hearing or doing. Depending on the audience, reset every two to three minutes, or whenever necessary. Approaches vary by grade.</p>
+    </header>
+    <article class="card"><div class="body">
+      ${RESETS.map(resetSec).join("")}
+    </div></article>
+    <div class="nav"><button data-go="build">Build your first five minutes</button><button data-go="">All tools and drills</button></div>`;
+  wire();
+}
+
+function drill(d){
+  let last = -1;
+  const t = d.tool && TOOLS[d.tool];
+  app.innerHTML = `
+    <button class="back" data-go="">← All drills</button>
+    <div class="head"><span class="marker big">${pad(d.n)}</span>
+      <div class="t"><span class="place">${d.name}</span><span class="meta">${len(d.secs)} · in threes</span></div></div>
+    <article class="card">
+      <div class="band ${t ? t.cls : "plain"}"><span>${d.blurb}</span></div>
+      <div class="body">
+        <div class="sec"><h3>${d.drawLabel}</h3><p class="say" id="draw" aria-live="polite"></p>
+          <button class="tbtn" id="redraw" style="align-self:flex-start">Draw another</button></div>
+        <div class="sec"><h3>Speaker</h3><ul class="plain">${d.speaker.map(x => `<li>${x}</li>`).join("")}</ul></div>
+        <div class="sec"><h3>Audience</h3><p>${d.audience}</p></div>
+        <div class="sec"><h3>${len(d.secs)} on the clock</h3>
+          <div class="timer"><span class="clock" id="clock"></span><button class="tbtn" id="tgo">Start</button><button class="tbtn" id="treset">Reset</button></div></div>
+        <div class="sec"><h3>Observer: tick what you see</h3><div>${d.checks.map((c,i) => `<label class="check" for="c${i}"><input type="checkbox" id="c${i}"><span>${c}</span></label>`).join("")}</div></div>
+        <div class="sec"><h3>Debrief</h3><p>The observer gives one piece of feedback. The speaker does it again, then rotate.</p></div>
+        <details id="egbox"><summary>One way to do it</summary><p id="eg"></p></details>
+      </div>
+    </article>
+    <div class="nav">${t ? `<button data-go="${d.tool}">How ${t.name.toLowerCase()} works</button>` : `<button data-go="build">Build your first five minutes</button>`}<button data-go="${d.n < DRILLS.length ? "d"+(d.n+1) : ""}">${d.n < DRILLS.length ? "Next drill" : "All drills"}</button></div>`;
+  wire();
+  const draw = () => {
+    let i; do { i = Math.floor(Math.random()*d.pool.length); } while(i === last && d.pool.length > 1);
+    last = i; const it = d.pool[i]; document.getElementById("draw").textContent = it[0]; document.getElementById("eg").textContent = d.eg ? d.eg(it[0]) : it[1]; document.getElementById("egbox").open = false;
+  };
+  document.getElementById("redraw").onclick = draw; draw();
+  timer(d.secs);
+}
+
+function timer(total){
+  const clock = document.getElementById("clock"), goBtn = document.getElementById("tgo");
+  let left = total;
+  const show = () => { clock.textContent = Math.floor(left/60) + ":" + pad(left%60); clock.classList.toggle("done", left===0); };
+  const stop = () => { clearInterval(tick); tick = null; goBtn.textContent = left===0 ? "Time" : "Start"; };
+  goBtn.onclick = () => {
+    if(tick){ stop(); return; }
+    if(left===0) return;
+    goBtn.textContent = "Pause";
+    tick = setInterval(() => { left--; show(); if(left<=0) stop(); }, 1000);
+  };
+  document.getElementById("treset").onclick = () => { stop(); left = total; show(); goBtn.textContent = "Start"; };
+  show();
+}
+
+function build(){
+  const plan = store.get();
+  if(!TOPICS[plan.topic]) plan.topic = "online";
+  const tp = () => TOPICS[plan.topic];
+  app.innerHTML = `
+    <button class="back" data-go="">← Hold the Room</button>
+    <header class="group">
+      <p class="eyebrow">Your next talk</p>
+      <h2>Build your first five minutes</h2>
+      <p class="lede">Choose a topic, then write one line for each tool. Open the example if you are stuck.</p>
+    </header>
+    <div class="chips" role="group" aria-label="Topic">
+      ${Object.entries(TOPICS).map(([k,v]) => `<button class="chip" data-topic="${k}" aria-pressed="${plan.topic===k}">${v.name}</button>`).join("")}
+    </div>
+    ${SLOTS.map(([k,label,hint]) => `<div class="slot s-${k}">
+      <label for="p-${k}">${label}</label>
+      <span class="hint">${hint}</span>
+      <textarea id="p-${k}" data-slot="${k}">${esc(plan[k] || "")}</textarea>
+      <details><summary>${plan.topic==="own" ? "A prompt to start from" : "See an example"}</summary><p data-eg="${k}"></p></details>
+    </div>`).join("")}
+    <div class="reset"><b>Then build trust</b><span id="trust"></span></div>
+    <button class="primary" id="copy">Copy my plan</button>
+    <p class="copied" id="copied" role="status"></p>
+    <textarea id="out" readonly hidden aria-label="Your plan as text"></textarea>
+    <div class="nav"><button data-go="resets">See the list of resets</button><button data-go="">All tools and drills</button></div>`;
+  wire();
+  const fill = () => {
+    app.querySelectorAll("[data-eg]").forEach(p => p.textContent = tp()[p.dataset.eg]);
+    document.getElementById("trust").textContent = tp().trust;
+    app.querySelectorAll("[data-topic]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.topic===plan.topic)));
+    app.querySelectorAll(".slot summary").forEach(s => s.textContent = plan.topic==="own" ? "A prompt to start from" : "See an example");
+  };
+  app.querySelectorAll("[data-topic]").forEach(b => b.onclick = () => { plan.topic = b.dataset.topic; store.set(plan); fill(); });
+  app.querySelectorAll("[data-slot]").forEach(t => t.oninput = () => { plan[t.dataset.slot] = t.value; store.set(plan); });
+  document.getElementById("copy").onclick = () => {
+    const text = ["My first five minutes", "Topic: " + tp().name, ""].concat(SLOTS.map(([k,label]) => label + ": " + ((plan[k] || "").trim() || "(to write)"))).join("\n");
+    const msg = document.getElementById("copied"), out = document.getElementById("out");
+    const fallback = () => { out.hidden = false; out.value = text; out.focus(); out.select(); msg.textContent = "Select the text and copy it."; };
+    try { navigator.clipboard.writeText(text).then(() => { msg.textContent = "Copied. Paste it into your notes."; }, fallback); } catch(e){ fallback(); }
+  };
+  fill();
+}
+
+function route(){
+  clearInterval(tick); tick = null;
+  const h = location.hash.slice(1);
+  const m = /^d(\d)$/.exec(h);
+  const d = m && DRILLS.find(x => x.n === Number(m[1]));
+  if(d) drill(d); else if(TOOLS[h]) tool(h); else if(h==="resets") resets(); else if(h==="build") build(); else home();
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
+
+</body>
+</html>

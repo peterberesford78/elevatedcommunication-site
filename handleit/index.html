@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Handle It Scenarios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one phone-width column. Quiet slate page; the only loud things are the
+   yellow evidence-marker scenario numbers and the three role colours. */
+:root{
+  --bg:#E9ECEF; --surface:#FFFFFF; --ink:#14202B; --muted:#566473; --line:#C9D1D9;
+  --marker:#F2B705; --marker-ink:#16130A;
+  --officer:#1D3B63; --challenger:#A8341C; --observer:#2A6A4C; --on-role:#FFFFFF;
+  --heat:#A8341C;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F151B; --surface:#1A232C; --ink:#E9EDF0; --muted:#9AA7B4; --line:#33404C;
+    --marker:#F2B705; --marker-ink:#16130A;
+    --officer:#2C568F; --challenger:#C2452B; --observer:#33805C; --on-role:#FFFFFF;
+    --heat:#EE7A5F; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F151B; --surface:#1A232C; --ink:#E9EDF0; --muted:#9AA7B4; --line:#33404C;
+  --marker:#F2B705; --marker-ink:#16130A;
+  --officer:#2C568F; --challenger:#C2452B; --observer:#33805C; --on-role:#FFFFFF;
+  --heat:#EE7A5F; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+#app{max-width:560px;margin:0 auto;padding:20px 16px 56px;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3,p{margin:0}
+h1,h2{font-family:var(--display);text-transform:uppercase;letter-spacing:.01em;line-height:1;text-wrap:balance}
+h1{font-size:54px;font-weight:700}
+h2{font-size:34px;font-weight:700}
+.eyebrow{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--muted);max-width:44ch}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--marker);outline-offset:2px}
+
+.marker{flex:none;display:grid;place-items:center;min-width:46px;height:46px;padding:0 6px;background:var(--marker);color:var(--marker-ink);font-family:var(--display);font-weight:700;font-size:30px;line-height:1;border-radius:3px 3px 0 0;border-bottom:4px solid var(--marker-ink);font-variant-numeric:tabular-nums}
+.marker.big{min-width:64px;height:64px;font-size:44px}
+
+.steps{list-style:none;margin:0;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column;gap:8px;counter-reset:s}
+.steps li{display:flex;gap:12px;align-items:baseline;counter-increment:s}
+.steps li::before{content:counter(s);font-family:var(--display);font-weight:700;font-size:22px;color:var(--muted);min-width:14px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 14px;font-size:15px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.random{border:2px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:6px;padding:13px 16px;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.05em;text-transform:uppercase;width:100%}
+
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.row{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.row .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row .place{font-weight:600;line-height:1.3}
+.row .meta{font-size:14px;color:var(--muted)}
+.row .q{font-size:15px;font-style:italic;color:var(--muted);margin-top:4px}
+.heat{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.bars{display:flex;gap:3px}
+.bars i{width:9px;height:14px;border-radius:2px;background:var(--line)}
+.bars i.on{background:var(--heat)}
+
+.toggle{display:flex;gap:10px;align-items:center;font-size:15px;color:var(--muted)}
+.toggle input{width:20px;height:20px;accent-color:var(--ink)}
+footer{font-size:14px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+
+.back{align-self:flex-start;background:none;border:0;padding:6px 0;font-weight:600;font-size:15px;color:var(--muted)}
+.head{display:flex;gap:14px;align-items:center}
+.head .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.head .place{font-weight:700;font-size:20px;line-height:1.25}
+
+.roles{display:flex;flex-direction:column;gap:10px}
+.role{display:flex;flex-direction:column;gap:2px;text-align:left;border:0;border-radius:6px;padding:16px 18px;color:var(--on-role)}
+.role b{font-family:var(--display);font-weight:700;font-size:32px;letter-spacing:.03em;text-transform:uppercase;line-height:1.05}
+.role span{font-size:16px;opacity:.92}
+.officer{background:var(--officer)} .challenger{background:var(--challenger)} .observer{background:var(--observer)}
+.note{font-size:15px;color:var(--muted)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.band{padding:14px 18px;color:var(--on-role);display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.band b{font-family:var(--display);font-weight:700;font-size:34px;letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.band span{font-size:14px;font-weight:600;opacity:.9;text-align:right}
+.body{padding:18px;display:flex;flex-direction:column;gap:18px}
+.sec{display:flex;flex-direction:column;gap:6px}
+.sec h3{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.say{font-size:24px;font-weight:600;line-height:1.3;border-left:5px solid var(--challenger);padding:4px 0 4px 14px;text-wrap:pretty}
+.plain{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.plain li{padding-left:14px;border-left:3px solid var(--line)}
+.ground{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.ground li{display:flex;gap:12px;align-items:baseline}
+.ground .l{font-family:var(--display);font-weight:700;font-size:24px;width:18px;flex:none;line-height:1}
+.ground small{color:var(--muted);font-size:15px}
+.check{display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.check:last-child{border-bottom:0}
+.check input{width:24px;height:24px;flex:none;accent-color:var(--observer)}
+.check .l{font-family:var(--display);font-weight:700;font-size:24px;width:18px;flex:none;line-height:1}
+details{border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+summary{font-weight:600;cursor:pointer}
+details p{margin-top:8px}
+.timer{display:flex;align-items:center;gap:14px}
+.clock{font-family:var(--display);font-weight:700;font-size:52px;line-height:1;font-variant-numeric:tabular-nums;min-width:112px}
+.clock.done{color:var(--heat)}
+.tbtn{border:2px solid var(--ink);background:transparent;border-radius:6px;padding:9px 16px;font-weight:700}
+.nav{display:flex;gap:10px;flex-wrap:wrap}
+.nav button{flex:1;min-width:150px;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:12px;font-weight:600}
+
+/* Supporting resources and the model conversation */
+.res{display:flex;flex-direction:column;gap:10px}
+.res h2{font-size:26px}
+.linkbtn{background:none;border:0;padding:0;font-weight:600;text-decoration:underline;text-align:left}
+.gstrip{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:8px 0;display:flex;flex-direction:column;gap:8px}
+.gkeys{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.gkey{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 0;font-family:var(--display);font-weight:700;font-size:28px;line-height:1}
+.gkey[aria-pressed="true"]{background:var(--marker);color:var(--marker-ink);border-color:var(--marker-ink)}
+.ginfo{font-size:15px;color:var(--muted);min-height:2.9em}
+.ginfo b{color:var(--ink)}
+.talk{display:flex;flex-direction:column;gap:10px}
+.turn{display:flex;flex-direction:column;gap:8px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--line);border-radius:8px;transition:opacity .15s}
+.turn.p{border-left-color:var(--challenger)}
+.turn.o{border-left-color:var(--officer)}
+.turn.b{background:transparent;border-style:dashed;border-left-style:dashed;font-style:italic}
+.turn.dim{opacity:.3}
+.who{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.words{font-size:18px;line-height:1.5;text-wrap:pretty}
+.words mark{background:var(--marker);color:var(--marker-ink);padding:1px 3px;border-radius:2px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.words mark.off{background:transparent;color:inherit}
+.tag{display:flex;gap:10px;align-items:center;font-size:15px;font-style:normal;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+.tag.off{opacity:.35}
+.tag b{color:var(--ink)}
+.tag .marker{min-width:30px;height:30px;font-size:21px;border-bottom-width:3px}
+.gx{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px}
+.gx .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.gx h3{font-family:var(--display);font-weight:700;font-size:28px;line-height:1;text-transform:uppercase;letter-spacing:.01em}
+.gx .lead{font-weight:600}
+.gx .why{color:var(--muted)}
+.gx dl{margin:0;display:flex;flex-direction:column;gap:6px;border-top:1px dashed var(--line);padding-top:8px;font-size:16px}
+.gx dt{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.gx dd{margin:0}
+.gx dd.no{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--heat)}
+@media (prefers-reduced-motion: reduce){.turn{transition:none}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const AUD = {students:"Students", parents:"Parents", staff:"School staff", community:"Community"};
+const HEAT = ["", "Curious", "Pointed", "Hostile"];
+const GROUND = [
+  ["G","Get grounded","Pause. Breathe before you speak."],
+  ["R","Respect first","Validate what they said."],
+  ["O","Open the conversation","Ask a question."],
+  ["U","Understand","Listen to the answer."],
+  ["N","Name the why","Give your reasons."],
+  ["D","Don't try to win","Resolve it instead."]
+];
+const S = [
+ {n:1, aud:"students", place:"Grade 6 classroom, Q&A time", heat:1, skill:"Answer straight, without drama",
+  setting:"You have just finished a 15-minute talk on what police do. The teacher opens the floor. Hands shoot up.",
+  limits:"Be truthful. Keep it right for eleven-year-olds, with the teacher listening.",
+  who:"An excited eleven-year-old. You are not being rude. You have wanted to ask this all day.",
+  line:"Have you ever shot anybody?",
+  push:["But have you ever pointed it at someone?","Can we see your gun?","My dad says cops shoot people all the time."],
+  ease:"Settle when the officer gives you a real answer and treats the question as fair.",
+  look:"Does the officer answer the actual question or dodge it? Is the tone right for age eleven?",
+  opener:"That's a fair thing to wonder about. I'll give you the honest answer, and then I want to ask you something."},
+ {n:2, aud:"students", place:"Grade 9 hallway, between classes", heat:2, skill:"Name the why",
+  setting:"You are walking to the office. Four students are at the lockers. One of them steps out as you pass.",
+  limits:"Explain the reason plainly. You don't have to defend every policy.",
+  who:"A fourteen-year-old with friends watching. Half joking, half serious. The gun makes you uneasy.",
+  line:"Why do you need a gun in a school? Who are you planning to shoot?",
+  push:["Teachers don't carry guns and they're here every day.","It's kind of scary, honestly.","So you think one of us is dangerous?"],
+  ease:"Ease off when the officer admits it can feel uncomfortable and explains without getting stiff.",
+  look:"Did the officer acknowledge the discomfort before explaining? Was the reason short and clear?",
+  opener:"I get why it looks strange in a school. Can I tell you why it's part of the uniform, and then you tell me what you think?"},
+ {n:3, aud:"students", place:"Grade 10 classroom, end of your talk", heat:3, skill:"Don't take the bait",
+  setting:"You have just wrapped up a talk on online safety. You ask if there are questions. One student leans back and speaks loudly.",
+  limits:"You don't need to win. Lower the temperature and keep the student in the conversation.",
+  who:"A fifteen-year-old who has seen police treat someone in your family badly. Your friends are watching.",
+  line:"Why should we listen to you? Cops lie all the time. You guys just protect each other anyway.",
+  push:["See, you're not even answering.","You'd say that. It's your job.","Whatever. You don't know what it's like."],
+  ease:"Ease off if the officer asks what happened and actually listens.",
+  look:"What did the officer's first three seconds look like? Did they ask a question before explaining?",
+  opener:"Sounds like you've got a reason for saying that. What makes you say it?"},
+ {n:4, aud:"students", place:"Grade 8 classroom, after class, one-on-one", heat:2, skill:"Be honest about confidentiality",
+  setting:"The class has left. One student hangs back, checking that nobody is listening.",
+  limits:"Don't promise secrecy you can't keep. Be clear about what you would have to do with what you hear.",
+  who:"A thirteen-year-old. Your friend is selling vapes at school. You are worried about him, but you are not a snitch.",
+  line:"If I tell you something about my friend, are you going to arrest him?",
+  push:["So you can't promise? Then forget it.","What if I don't say his name?","Everyone will know it was me."],
+  ease:"Stay if the officer is honest about what happens next and doesn't pressure you.",
+  look:"Did the officer avoid a false promise? Did the student still feel safe enough to keep talking?",
+  opener:"I'm glad you stayed back. Before you tell me anything, let me be straight about what I can and can't keep between us."},
+ {n:5, aud:"students", place:"Grade 11 classroom discussion", heat:3, skill:"Hear it without defending",
+  setting:"You are leading a discussion on rights when dealing with police. A student who has been quiet speaks up.",
+  limits:"You can't speak for every officer or every stop. You can speak for how you work.",
+  who:"A sixteen-year-old. You and your cousins have been stopped more than once. You are tired, not shouting.",
+  line:"My cousin says the RCMP only stop people who look like us. Is he wrong?",
+  push:["So you're saying he's lying?","It's happened to me too. Twice.","You wouldn't know. It doesn't happen to you."],
+  ease:"Ease off if the officer takes the experience seriously instead of correcting it.",
+  look:"Did the officer validate the experience before saying anything about policing? Any sign of defensiveness?",
+  opener:"I'm not going to tell you your cousin is wrong about what happened to him. Can you tell me what happened?"},
+ {n:6, aud:"students", place:"Grade 12 social studies, careers Q&A", heat:2, skill:"Decline an opinion and stay in the conversation",
+  setting:"A teacher has invited you for a careers Q&A. A large protest was in the news last week. A student raises a hand.",
+  limits:"You are in uniform. Keep your personal politics out of it without shutting the student down.",
+  who:"A seventeen-year-old who follows the news closely. You want to know if this officer is a person or a talking point.",
+  line:"What do you think about the protest last weekend? Whose side are you on?",
+  push:["That's a non-answer.","But you must have an opinion.","Would you have arrested people there?"],
+  ease:"Ease off if the officer explains why they won't pick a side and asks what you think.",
+  look:"Did the officer decline without sounding evasive? Did they turn it into a conversation?",
+  opener:"Fair question. In this uniform my job is to not pick a side, and I can tell you why. I'm curious what you made of it."},
+ {n:7, aud:"students", place:"Front doors at dismissal", heat:2, skill:"Stay composed on camera",
+  setting:"You are chatting with a few students by the front doors. One of them lifts a phone and starts recording.",
+  limits:"Assume it will be posted. Stay friendly and keep it short.",
+  who:"A fifteen-year-old who wants a reaction for a video. Not angry. Performing for friends.",
+  line:"Say hi to my followers. Is it true you guys have a quota for tickets?",
+  push:["Are you allowed to tell me to stop filming?","You look nervous.","Do a dance or something."],
+  ease:"Lose interest once the officer is relaxed and gives you nothing dramatic.",
+  look:"Watch the body language when the phone comes up. Did the officer stay warm without performing?",
+  opener:"Hi, followers. Good question, actually. Want the real answer or the fun one?"},
+ {n:8, aud:"parents", place:"School office, a parent is waiting for you", heat:3, skill:"Absorb anger, then explain the process",
+  setting:"Yesterday you spoke with a Grade 9 student about an incident at school. This morning the parent is waiting at the office.",
+  limits:"Don't argue the details in the hallway. Don't guess at rules you are unsure of. Offer to walk through what happened.",
+  who:"A parent who found out from your child, not from the school. You feel blindsided and protective.",
+  line:"You questioned my kid without calling me first. Is that even legal?",
+  push:["He's fourteen. He was terrified.","I want to know exactly what you asked him.","I'm going to make a complaint."],
+  ease:"Calm down if the officer hears you out fully before explaining anything.",
+  look:"How long did the officer listen before explaining? Did they offer a concrete next step?",
+  opener:"I'd be upset too if I heard about it that way. Tell me what your son told you, and then I'll walk you through what happened."},
+ {n:9, aud:"parents", place:"PAC meeting, question period", heat:2, skill:"Say what you know and what you don't",
+  setting:"You have given a short update to about thirty parents. The chair opens questions. A parent near the back stands.",
+  limits:"Answer only what you know for certain. Offer to find out the rest, and say when.",
+  who:"A parent who has read about agencies sharing information and is worried about your family's privacy.",
+  line:"When you talk to our kids, where does that information go? Do you share it with other agencies?",
+  push:["That's vague. Yes or no?","Is there a written policy we can read?","So you don't actually know."],
+  ease:"Ease off if the officer is specific about what they know and commits to follow up.",
+  look:"Did the officer separate what they know from what they need to check? Was there a clear follow-up?",
+  opener:"That's a reasonable thing to want to know. Here's what I can tell you for certain, and here's what I'd want to confirm before I answer."},
+ {n:10, aud:"parents", place:"Phone call to your desk", heat:3, skill:"Explain limits without sounding indifferent",
+  setting:"A parent calls your desk line. Their daughter in Grade 7 has been targeted in a group chat for weeks.",
+  limits:"Don't promise an outcome. Explain what you can do and what happens next.",
+  who:"A parent who has already gone to the school twice. Your daughter is not sleeping. You are out of patience.",
+  line:"A boy has been tormenting my daughter online for a month and the school does nothing. Why won't you charge him?",
+  push:["So he just gets away with it?","What would it take? Does she have to get hurt?","I'll deal with his parents myself, then."],
+  ease:"Ease off if the officer shows they care about your daughter before talking about process.",
+  look:"Did care come before process? Did the parent leave with something concrete?",
+  opener:"A month of that is a long time, and I'm sorry she's going through it. I want to hear what's been happening, and then I'll tell you what I can do."},
+ {n:11, aud:"parents", place:"PAC meeting, after your introduction", heat:2, skill:"Don't try to win",
+  setting:"You have explained your role at the school. A parent speaks up, and a few others nod.",
+  limits:"You are not there to convert anyone. Aim to understand the concern.",
+  who:"A parent who believes school should be a police-free space. Calm, firm, and well read on the topic.",
+  line:"I don't want police in my kid's school. Kids are supposed to feel safe here, and uniforms make some of them feel less safe.",
+  push:["Would you come without the uniform?","Has anyone asked the students?","You're not hearing me. I said I don't want you here."],
+  ease:"Ease off if the officer accepts that some students do feel that way.",
+  look:"Did the officer try to change the parent's mind? Did they ask what specifically concerns them?",
+  opener:"That's a fair concern, and I don't expect every parent to feel the same way. What worries you most about us being here?"},
+ {n:12, aud:"staff", place:"Staff room, a teacher catches you alone", heat:1, skill:"Know your limits and say so",
+  setting:"You are getting a coffee. A teacher you know a little closes the door behind them.",
+  limits:"Don't give legal advice off the cuff. Help the teacher find the right answer and the right person.",
+  who:"A teacher. A student told you something worrying about home and asked you not to tell. You feel torn.",
+  line:"A student told me something in confidence. Hypothetically, do I have to tell you?",
+  push:["If I tell you, does it become a police matter?","She'll never trust me again.","Can I describe it without names first?"],
+  ease:"Relax if the officer takes the bind seriously and doesn't push for the name.",
+  look:"Did the officer avoid pressing for details? Did they point to who decides, such as the principal or the reporting process?",
+  opener:"That's a hard spot to be in. I don't want to guess at your obligations, so let's work out who can give you the right answer."},
+ {n:13, aud:"staff", place:"Vice-principal's office", heat:2, skill:"Say no and offer something better",
+  setting:"The vice-principal has asked you to drop by about a Grade 8 student who keeps getting into fights.",
+  limits:"You are not there to intimidate students. Keep the relationship with the school.",
+  who:"A stretched vice-principal. You have tried everything with this student and want a quick fix.",
+  line:"Can you just come in uniform and scare him straight? Tell him where this ends up.",
+  push:["It worked when I was a kid.","Then what are you here for?","I've got twenty minutes. I need something today."],
+  ease:"Ease off if the officer offers a specific alternative you can use this week.",
+  look:"Was the no clear? Did an alternative follow quickly?",
+  opener:"I can hear you've tried everything. Scaring him isn't something I'll do, but I'd like to meet him. Can I tell you what I'd try?"},
+ {n:14, aud:"staff", place:"Classroom door, before a booked visit", heat:2, skill:"Respect a no",
+  setting:"You arrive for a booked classroom talk. The teacher meets you at the door and steps into the hall.",
+  limits:"The teacher knows the class. Don't insist. Look for another way to be useful.",
+  who:"A teacher. Two of your students have had frightening experiences with police at home. You are protecting them.",
+  line:"I know this was booked, but I'd rather you not come in today. Some of my students have a hard history with police.",
+  push:["I'm not going to tell you which students.","It's not about you personally.","Maybe not this year at all."],
+  ease:"Ease off if the officer accepts it without making you justify yourself.",
+  look:"Did the officer accept the no without asking for reasons? Did they leave the door open for later?",
+  opener:"Thank you for telling me. You know your class. Is there another way I could be useful to you or to them?"},
+ {n:15, aud:"community", place:"Community meeting at a band office", heat:3, skill:"Acknowledge history you didn't cause",
+  setting:"You have been invited to talk about a youth program. After your introduction, an older community member speaks.",
+  limits:"Don't explain the history away, and don't separate yourself from it too quickly. Listen first. Trust is earned over time, not in one answer.",
+  who:"A grandparent raising grandchildren. Your family carries the history of children being taken. You speak slowly and directly.",
+  line:"The RCMP took children from this community. Why should we trust you with ours?",
+  push:["You weren't there. But the uniform was.","We've heard nice words before.","What will be different this time?"],
+  ease:"Ease off if the officer stays with what you said and doesn't rush to reassure you.",
+  look:"Did the officer leave silence? Did they acknowledge the history plainly before talking about the program?",
+  opener:"Thank you for saying that to me directly. That history is real, and I know what this uniform means here. I'd like to listen before I say anything about the program."},
+ {n:16, aud:"community", place:"Community hall, open meeting on youth safety", heat:3, skill:"Take criticism of the organization",
+  setting:"You are speaking at a community meeting about youth safety. A resident stands before you have finished.",
+  limits:"Don't make excuses about staffing. Don't promise response times you can't control.",
+  who:"A resident who called for help last month and waited a long time. You have seen officers at school events and photo days.",
+  line:"You show up for the school photo, but where are you when we call?",
+  push:["Forty minutes. I timed it.","So it's somebody else's department. It always is.","The kids see that, you know."],
+  ease:"Ease off if the officer takes the complaint seriously and offers to look into your call.",
+  look:"Any excuses? Did the officer ask about the specific call?",
+  opener:"That's fair to raise, and I'm not going to make excuses. Tell me what happened when you called."}
+];
+
+const app = document.getElementById("app");
+const state = {aud:"all", reveal:false};
+let tick = null;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const bars = h => '<span class="bars" aria-hidden="true">' + [1,2,3].map(i => '<i class="'+(i<=h?"on":"")+'"></i>').join("") + "</span>";
+const go = h => { location.hash = h; };
+
+function home(){
+  const items = S.filter(s => state.aud==="all" || s.aud===state.aud);
+  app.innerHTML = `
+    <header style="display:flex;flex-direction:column;gap:10px">
+      <p class="eyebrow">Dynamic speaking practice</p>
+      <h1>Handle It</h1>
+      <p class="lede">Sixteen hard moments with students, parents, school staff and community members. Practise your first thirty seconds.</p>
+    </header>
+    <ol class="steps">
+      <li>Get into threes and agree on a scenario number.</li>
+      <li>Each take a role: officer, challenger or observer.</li>
+      <li>Run it for three minutes, debrief, then rotate.</li>
+    </ol>
+    <div class="chips" role="group" aria-label="Filter by who is asking">
+      ${[["all","All"],...Object.entries(AUD)].map(([k,v]) => `<button class="chip" data-aud="${k}" aria-pressed="${state.aud===k}">${v}</button>`).join("")}
+    </div>
+    <button class="random" id="random">Pick one for us</button>
+    <ul class="list">
+      ${items.map(s => `<li><button class="row" data-go="s${s.n}">
+        <span class="marker">${pad(s.n)}</span>
+        <span class="t"><span class="place">${esc(s.place)}</span><span class="meta">${AUD[s.aud]}</span>${state.reveal?`<span class="q">“${esc(s.line)}”</span>`:""}</span>
+        <span class="heat">${bars(s.heat)}${HEAT[s.heat]}</span>
+      </button></li>`).join("")}
+    </ul>
+    <section class="res">
+      <h2>Supporting resources</h2>
+      <button class="row" data-go="ground">
+        <span class="marker">G</span>
+        <span class="t"><span class="place">The GROUND framework explained</span><span class="meta">Six moves for answering a hard question, with what each one sounds like.</span></span>
+      </button>
+      <button class="row" data-go="model">
+        <span class="marker">08</span>
+        <span class="t"><span class="place">A model conversation with GROUND marked</span><span class="meta">Scenario 08, played out line by line. Read it after you have practised.</span></span>
+      </button>
+    </section>
+    <label class="toggle" for="reveal"><input type="checkbox" id="reveal" ${state.reveal?"checked":""}> Facilitator view: show the questions</label>
+    <footer>
+      <span>The list hides each question so the officer hears it for the first time in the round.</span>
+      <span>Sample openings are practice drafts. Check anything about law or policy against your unit's guidance.</span>
+      <span>Peter Beresford · ElevatedCommunication.ca</span>
+    </footer>`;
+  app.querySelectorAll("[data-aud]").forEach(b => b.onclick = () => { state.aud = b.dataset.aud; home(); });
+  app.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go));
+  document.getElementById("reveal").onchange = e => { state.reveal = e.target.checked; home(); };
+  document.getElementById("random").onclick = () => go("s" + items[Math.floor(Math.random()*items.length)].n);
+}
+
+function head(s){
+  return `<div class="head"><span class="marker big">${pad(s.n)}</span>
+    <div class="t"><span class="place">${esc(s.place)}</span>
+    <span class="heat" style="flex-direction:row;align-items:center;gap:8px">${bars(s.heat)}${HEAT[s.heat]} · ${AUD[s.aud]}</span></div></div>`;
+}
+
+function roles(s){
+  app.innerHTML = `
+    <button class="back" data-go="">← All scenarios</button>
+    ${head(s)}
+    <h2>Choose your role</h2>
+    <div class="roles">
+      <button class="role officer" data-go="s${s.n}-officer"><b>Officer</b><span>You respond. You see the setting, not the question.</span></button>
+      <button class="role challenger" data-go="s${s.n}-challenger"><b>Challenger</b><span>You ask the hard question and push back.</span></button>
+      <button class="role observer" data-go="s${s.n}-observer"><b>Observer</b><span>You keep time, watch for GROUND and lead the debrief.</span></button>
+    </div>
+    <p class="note">Working as a pair? The challenger opens the observer card after the round.</p>`;
+  wire();
+}
+
+function card(s, role){
+  let band, body;
+  if(role==="officer"){
+    band = "You respond";
+    body = `
+      <div class="sec"><h3>The setting</h3><p>${esc(s.setting)}</p></div>
+      <div class="sec"><h3>Keep in mind</h3><p>${esc(s.limits)}</p></div>
+      <div class="sec"><h3>Your partner speaks first</h3><p>You have not seen the question. Respond the way you would in the room.</p></div>
+      <div class="sec"><h3>GROUND</h3><ul class="ground">${GROUND.map(g => `<li><span class="l">${g[0]}</span><span><b>${g[1]}</b> <small>${g[2]}</small></span></li>`).join("")}</ul></div>
+      <details><summary>After the round: one way to open</summary><p>“${esc(s.opener)}”</p>${more(s)}</details>`;
+  } else if(role==="challenger"){
+    band = "You speak first";
+    body = `
+      <div class="sec"><h3>Who you are</h3><p>${esc(s.who)}</p></div>
+      <div class="sec"><h3>Say this to start</h3><p class="say">“${esc(s.line)}”</p></div>
+      <div class="sec"><h3>If the officer lectures, dodges or gets defensive</h3><ul class="plain">${s.push.map(p => `<li>“${esc(p)}”</li>`).join("")}</ul></div>
+      <div class="sec"><h3>When to ease off</h3><p>${esc(s.ease)}</p></div>
+      <div class="sec"><h3>Play it real</h3><p>Stay in character and react to what you actually hear. Don't make it easy, and don't make it impossible.</p></div>`;
+  } else {
+    band = "You watch";
+    body = `
+      <div class="sec"><h3>Three-minute round</h3>
+        <div class="timer"><span class="clock" id="clock">3:00</span><button class="tbtn" id="tgo">Start</button><button class="tbtn" id="treset">Reset</button></div></div>
+      <div class="sec"><h3>The question the officer will hear</h3><p>“${esc(s.line)}”</p></div>
+      <div class="sec"><h3>Skill being tested</h3><p><b>${esc(s.skill)}.</b> ${esc(s.look)}</p></div>
+      <div class="sec"><h3>Tick what you see</h3><div>${GROUND.map((g,i) => `<label class="check" for="g${i}"><input type="checkbox" id="g${i}"><span class="l">${g[0]}</span><span>${g[1]}</span></label>`).join("")}</div></div>
+      <div class="sec"><h3>Debrief, two minutes</h3><ul class="plain">
+        <li>Officer first: what would you do differently?</li>
+        <li>Challenger: when did you feel heard, and when did you not?</li>
+        <li>Observer: one thing that worked and one thing to try.</li></ul></div>
+      <details><summary>One way to open, for comparison</summary><p>“${esc(s.opener)}”</p>${more(s)}</details>`;
+  }
+  app.innerHTML = `
+    <button class="back" data-go="s${s.n}">← Change role</button>
+    ${head(s)}
+    <article class="card">
+      <div class="band ${role}"><b>${role}</b><span>${band}</span></div>
+      <div class="body">${body}</div>
+    </article>
+    <div class="nav"><button data-go="s${s.n}">Rotate roles</button><button data-go="">All scenarios</button></div>`;
+  wire();
+  if(role==="observer") timer();
+}
+
+function timer(){
+  const clock = document.getElementById("clock"), goBtn = document.getElementById("tgo");
+  let left = 180;
+  const show = () => { clock.textContent = Math.floor(left/60) + ":" + pad(left%60); clock.classList.toggle("done", left===0); };
+  const stop = () => { clearInterval(tick); tick = null; goBtn.textContent = left===0 ? "Time" : "Start"; };
+  goBtn.onclick = () => {
+    if(tick){ stop(); return; }
+    if(left===0) return;
+    goBtn.textContent = "Pause";
+    tick = setInterval(() => { left--; show(); if(left<=0) stop(); }, 1000);
+  };
+  document.getElementById("treset").onclick = () => { stop(); left = 180; show(); goBtn.textContent = "Start"; };
+}
+
+const more = s => s.n===8 ? '<p><button class="linkbtn" data-go="model">See this whole conversation with GROUND marked</button></p>' : "";
+
+const MODEL = [
+ {r:"p", html:`“You questioned my kid without calling me first. Is that even legal?”`},
+ {r:"b", html:`The officer stops, turns to face the parent and <mark data-g="G">takes one breath</mark> before saying anything.`,
+  tags:[["G","The pause is the first move. It keeps the first words from sounding defensive."]]},
+ {r:"o", html:`“<mark data-g="R">I'd be upset too if I heard about it that way.</mark> <mark data-g="O">Tell me what your son told you</mark>, and then I'll walk you through what happened.”`,
+  tags:[["R","Validates the feeling before explaining anything."],["O","Asks a question, so the parent talks first."]]},
+ {r:"p", html:`“He's fourteen. He was terrified. He said he was pulled into a room and didn't know if he was in trouble.”`},
+ {r:"o", html:`“<mark data-g="U">So he came home scared, not sure if he was in trouble, and you heard it from him instead of from us.</mark> <mark data-g="O">Is that the worst part, that nobody called you?</mark>”`,
+  tags:[["U","Says back what was heard. No explaining yet."],["O","Checks which part matters most."]]},
+ {r:"p", html:`“Yes. I want to know exactly what you asked him. And I'm going to make a complaint.”`},
+ {r:"o", html:`“<mark data-g="R">That's your right, and I'll show you how to do it.</mark> Can we sit down in the office so I can go through it properly? <mark data-g="N">Here's why I spoke with him: something happened at school yesterday, and I wanted to hear from the students who were there while it was fresh.</mark>”`,
+  tags:[["R","Doesn't fight the complaint."],["N","Gives the reason plainly, after listening and away from the hallway."]]},
+ {r:"p", html:`“You still should have called me first.”`},
+ {r:"o", html:`“<mark data-g="D">I'm not going to argue that with you.</mark> I don't want to guess at the exact rule, so <mark data-g="D">I'll check it and phone you with the answer today.</mark> What's the best number to reach you?”`,
+  tags:[["D","Doesn't defend or guess at the rule. Offers a concrete next step."]]},
+ {r:"p", html:`“Today. I'll be waiting.”`}
+];
+
+function model(){
+  const s = S.find(x => x.n === 8);
+  const WHO = {p:"Parent", o:"Officer", b:"Before the officer speaks"};
+  const name = l => GROUND.find(g => g[0]===l);
+  app.innerHTML = `
+    <button class="back" data-go="">← All scenarios</button>
+    ${head(s)}
+    <h2>One way it could go</h2>
+    <p class="lede">Each highlighted phrase is a GROUND move. Tap a letter to find it in the conversation.</p>
+    <div class="gstrip">
+      <div class="gkeys" role="group" aria-label="Find a GROUND move">
+        ${GROUND.map(g => `<button class="gkey" data-key="${g[0]}" aria-pressed="false" aria-label="${g[1]}">${g[0]}</button>`).join("")}
+      </div>
+      <p class="ginfo" id="ginfo" role="status"></p>
+    </div>
+    <div class="talk">
+      ${MODEL.map(t => `<div class="turn ${t.r}" data-g="${(t.tags||[]).map(x => x[0]).join(" ")}">
+        <span class="who">${WHO[t.r]}</span>
+        <p class="words">${t.html}</p>
+        ${(t.tags||[]).map(x => `<div class="tag" data-g="${x[0]}"><span class="marker">${x[0]}</span><span><b>${name(x[0])[1]}.</b> ${x[1]}</span></div>`).join("")}
+      </div>`).join("")}
+    </div>
+    <footer>
+      <span>This is one way the conversation could go, not a script. Use your own words.</span>
+      <span>Check anything about law or policy against your unit's guidance.</span>
+    </footer>
+    <div class="nav"><button data-go="s8">Practise scenario 08</button><button data-go="">All scenarios</button></div>`;
+  wire();
+  let focus = "";
+  const info = document.getElementById("ginfo");
+  const paint = () => {
+    app.querySelectorAll(".gkey").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.key===focus)));
+    app.querySelectorAll(".turn").forEach(t => t.classList.toggle("dim", !!focus && !t.dataset.g.split(" ").includes(focus)));
+    app.querySelectorAll(".words mark, .tag").forEach(e => e.classList.toggle("off", !!focus && e.dataset.g!==focus));
+    const g = focus && name(focus);
+    info.innerHTML = g ? `<b>${g[1]}.</b> ${g[2]}` : "Showing all six moves.";
+  };
+  app.querySelectorAll(".gkey").forEach(b => b.onclick = () => { focus = focus===b.dataset.key ? "" : b.dataset.key; paint(); });
+  paint();
+}
+
+const GX = {
+  G:{why:"A hard question sets off the urge to defend. One breath keeps your first words from doing that, and your first three seconds set the tone for the rest.",
+     say:"Say nothing yet. Plant your feet, face the person, breathe once.", no:"Answering before they have finished."},
+  R:{why:"People can't take in your reasons until they feel heard. Validating is not agreeing. It tells them the question or the feeling is fair.",
+     say:"“That's a fair question.” “I'd be upset too.”", no:"“Well, actually…”"},
+  O:{why:"A question turns a confrontation into a conversation, and it shows you what the concern really is.",
+     say:"“What makes you say that?” “Tell me what happened.”", no:"Going straight into your explanation."},
+  U:{why:"The first thing someone says is often not the real issue. Say back what you heard before you add anything of your own.",
+     say:"“So the part that bothers you most is…”", no:"Planning your reply while they are still talking."},
+  N:{why:"Now give your reason, short and plain. One clear reason does more than five. If you don't know something, say so and say when you will find out.",
+     say:"“Here's why I did that.” “I don't know. I'll check and tell you today.”", no:"Quoting policy, using jargon or guessing."},
+  D:{why:"You are not there to get agreement. Aim for a next step the person can count on, and let them keep their view.",
+     say:"“You don't have to agree with me. Here's what I can do.”", no:"Needing the last word."}
+};
+
+function explain(){
+  app.innerHTML = `
+    <button class="back" data-go="">← All scenarios</button>
+    <header style="display:flex;flex-direction:column;gap:10px">
+      <p class="eyebrow">Supporting resources</p>
+      <h2>The GROUND framework</h2>
+      <p class="lede">Six moves for the moment someone asks you something hard. They run roughly in order, and you can come back to any of them.</p>
+    </header>
+    ${GROUND.map(g => `<section class="gx">
+      <span class="marker big">${g[0]}</span>
+      <div class="t">
+        <h3>${g[1]}</h3>
+        <p class="lead">${g[2]}</p>
+        <p class="why">${GX[g[0]].why}</p>
+        <dl><dt>Sounds like</dt><dd>${GX[g[0]].say}</dd><dt>Instead of</dt><dd class="no">${GX[g[0]].no}</dd></dl>
+      </div>
+    </section>`).join("")}
+    <div class="nav"><button data-go="model">See it in a conversation</button><button data-go="">All scenarios</button></div>`;
+  wire();
+}
+
+function wire(){ app.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go)); }
+
+function route(){
+  clearInterval(tick); tick = null;
+  const m = /^#s(\d+)(?:-(officer|challenger|observer))?$/.exec(location.hash);
+  const s = m && S.find(x => x.n === Number(m[1]));
+  if(location.hash==="#model") model(); else if(location.hash==="#ground") explain(); else if(!s) home(); else if(m[2]) card(s, m[2]); else roles(s);
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
