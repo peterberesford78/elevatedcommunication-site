@@ -23,6 +23,7 @@
   --rain:#2B6A9E;
   --card:#FFFFFF;
   --marker:#7FB8E6;
+  --gold:#E4B43C;
   --sans:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
   --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
   color-scheme:light dark;
@@ -68,7 +69,7 @@ p{margin:0 0 1rem}
 /* Hero */
 .hero{background:var(--spruce);color:#EDF1F5;padding:1.25rem 0 3rem}
 .top{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding-bottom:3.5rem}
-.brand{font:700 1.05rem/1 var(--sans);color:#fff;text-decoration:none}
+.brand{font:700 1.05rem/1 var(--sans);color:var(--gold);text-decoration:none}
 .nav{display:flex;gap:1.4rem;font:500 .95rem/1 var(--sans)}
 .nav a{color:#C6CDD4;text-decoration:none}
 .nav a:hover{color:#fff}
@@ -100,7 +101,7 @@ p{margin:0 0 1rem}
 /* Scenario card demo */
 .tabs{display:flex;gap:.25rem;margin-top:1.5rem;flex-wrap:wrap}
 .tab{font:600 1rem/1 var(--sans);padding:.9rem 1.2rem;border:1.5px solid var(--line);border-bottom:none;background:transparent;color:var(--muted);border-radius:8px 8px 0 0;cursor:pointer}
-.tab[aria-selected="true"]{background:var(--card);color:var(--ink);border-color:var(--line)}
+.tab[aria-selected="true"]{background:var(--gold);color:#1D2228;border-color:var(--gold)}
 .card{background:var(--card);border:1.5px solid var(--line);border-radius:0 10px 10px 10px;padding:1.6rem 1.5rem;max-width:44rem}
 .card[data-role="officer"]{border-top:.4rem solid var(--marker)}
 .card[data-role="challenger"]{border-top:.4rem solid var(--rain)}
